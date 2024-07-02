@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id          Int           @id @default(autoincrement())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  name        String
+  description String?
+  userId      Int
+  User        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  WorkSession WorkSession[]
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  email          String    @unique
+  hashedPassword String
+  nickName       String?
+  Project        Project[]
+}
+
+model WorkSession {
+  id             Int           @id @default(autoincrement())
+  startTime      DateTime
+  endTime        DateTime?
+  breakStartTime DateTime?
+  breakEndTime   DateTime?
+  duration       Int?
+  status         SessionStatus @default(WORKING)
+  description    String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime
+  projectId      Int
+  Project        Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+enum SessionStatus {
+  WORKING
+  ON_BREAK
+  COMPLETED
+}
